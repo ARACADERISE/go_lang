@@ -7,6 +7,20 @@ block Info -> {
 	path: PATH
 };
 
+* To init a lexer block, do *
+block Lexer -> INIT_LEXER;
+
+* To init a parser block do *
+block Parser -> INIT_PARSER;
+
+* To init a ast do *
+block Ast -> INIT_AST;
+
+* If you want to add things, no problem! *
+Lexer.add(dude, string);
+Parser.add(dude, string);
+Ast.add(dude, string);
+
 fnc init_Info(filename: string) -> Info
 {
 	block Info info = new block Info();
