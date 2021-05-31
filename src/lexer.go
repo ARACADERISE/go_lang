@@ -15,7 +15,8 @@ const (
 	T_RB	= 3
 	T_SEMI	= 4
 	K_LET	= 5
-	K_PRINT = 6
+	K_REQ	= 6
+	K_PRINT = 7
 )
 
 // Errors
@@ -31,6 +32,7 @@ type Lexer struct {
 	File_size	int
 	Errors		[]error
 	Current_Token	int
+	Token_value	string
 	index		int
 }
 
@@ -64,9 +66,10 @@ func Init_lexer(filename string) *Lexer {
 	return &info
 }
 
-func advance_token(lexer *Lexer, token_type int) *Lexer {
+func (lexer *Lexer) advance_with_token(token_type int, token_value string) *Lexer {
 	lexer.index += 1
 	lexer.Current_Token = token_type
+	lexer.Token_value = token_value
 
 	return lexer
 }
@@ -78,15 +81,55 @@ func is_alpha(val byte) bool {
 	return false
 }
 
+func (lexer *Lexer) pickup_keyword() (string, *Lexer) {
+	keyword := ""
+
+	for {
+		if lexer.File_content[lexer.index] == ' ' {
+			break
+		}
+
+		keyword += string(lexer.File_content[lexer.index])
+
+		lexer.index += 1
+	}
+
+	return keyword, lexer
+}
+
 func (lexer *Lexer) Lex() *Lexer {
 	for {
+		if lexer.index == len(lexer.File_content) - 1 {
+			break
+		}
 		if is_alpha(lexer.File_content[lexer.index]) {
 			// Do Something to pickup keyword
-			fmt.Println("HERE")
+			keyword, new_lex := lexer.pickup_keyword()
+			lexer = new_lex
+
+			switch keyword {
+				case "let": {
+					fmt.Println("LET KEYWORD")
+					return lexer.advance_with_token(K_LET, "let")
+				}
+				case "require": {
+					fmt.Println("REQUIRE KEYWORD")
+					return lexer.advance_with_token(K_REQ, "require")
+				}
+			}
 		}
 		switch lexer.File_content[lexer.index] {
+			case ' ': {
+				for {
+					if lexer.File_content[lexer.index] != ' ' {
+						break
+					}
+					lexer.index += 1
+				}
+				continue
+			}
 			case '"': {
-				// Do Something To Get String
+				return lexer
 			}
 			case '*': {
 				for {
@@ -105,6 +148,10 @@ func (lexer *Lexer) Lex() *Lexer {
 			}
 		}
 		lexer.index += 1
+
+		if lexer.index == len(lexer.File_content) - 1 {
+			break
+		}
 
 	}
 

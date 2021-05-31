@@ -2,6 +2,9 @@
 	"author": "Your Name",
 	"version": "0.1.0",
 	"desc": "Your language description",
-	"file": "/home/mocacdeveloper/go_lang/dude.t",
-	"all_files": null
+	"file": "/home/moca/go_lang/main.tf",
+	"all_files": [
+		"/home/moca/go_lang/main.tf",
+		"/home/moca/src/main.tf"
+	]
 }

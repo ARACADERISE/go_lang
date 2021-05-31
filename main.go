@@ -1,16 +1,17 @@
 package main
 
 import (
-	"fmt"
 	"go_lang/src"
 	"go_lang/go_lang_packager/packager"
+	"fmt"
 )
 
 func main() {
-	packager.Package("dude.t")
-	var info src.LexerI
+	packager.Package("main.tf")
+	var lexer src.LexerI
 
-	info = src.Init_lexer("dude.t")
-	info.Lex()
-	fmt.Println(info)
+	lexer = src.Init_lexer("main.tf")
+	lexer.Lex()
+	parser := src.Init_parser(lexer)
+	fmt.Println(parser)
 }
