@@ -1,1 +1,1 @@
-require "lang_info.json"
+require "lang_info.json";

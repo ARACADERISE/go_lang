@@ -14,9 +14,10 @@ const (
 	T_LB	= 2
 	T_RB	= 3
 	T_SEMI	= 4
-	K_LET	= 5
-	K_REQ	= 6
-	K_PRINT = 7
+	T_STR	= 5
+	K_LET	= 6
+	K_REQ	= 7
+	K_PRINT = 8
 )
 
 // Errors
@@ -25,6 +26,7 @@ const (
 	ReadErr		= 134
 	NoFile		= 138
 	InvalidToken	= 140
+	UnknownKeyword 	= 144
 )
 
 type Lexer struct {
@@ -38,6 +40,7 @@ type Lexer struct {
 
 type LexerI interface {
 	Lex() *Lexer
+	Current_token() int
 }
 
 func Init_lexer(filename string) *Lexer {
@@ -85,6 +88,10 @@ func (lexer *Lexer) pickup_keyword() (string, *Lexer) {
 	keyword := ""
 
 	for {
+		if lexer.File_content[lexer.index] == lexer.File_content[len(lexer.File_content) - 1] {
+			keyword += string(lexer.File_content[lexer.index])
+			break
+		}
 		if lexer.File_content[lexer.index] == ' ' {
 			break
 		}
@@ -97,9 +104,30 @@ func (lexer *Lexer) pickup_keyword() (string, *Lexer) {
 	return keyword, lexer
 }
 
+func (lexer *Lexer) pickup_str() (string, *Lexer) {
+	str_value := ""
+
+	lexer.index += 1
+	for {
+		if lexer.File_content[lexer.index] == '"' {
+			lexer.index += 1
+			break
+		}
+
+		str_value += string(lexer.File_content[lexer.index])
+		lexer.index += 1
+	}
+
+	return str_value, lexer
+}
+
+func (lexer *Lexer) Current_token() int {
+	return lexer.Current_Token
+}
+
 func (lexer *Lexer) Lex() *Lexer {
 	for {
-		if lexer.index == len(lexer.File_content) - 1 {
+		if lexer.index >= len(lexer.File_content) - 1 {
 			break
 		}
 		if is_alpha(lexer.File_content[lexer.index]) {
@@ -108,14 +136,9 @@ func (lexer *Lexer) Lex() *Lexer {
 			lexer = new_lex
 
 			switch keyword {
-				case "let": {
-					fmt.Println("LET KEYWORD")
-					return lexer.advance_with_token(K_LET, "let")
-				}
-				case "require": {
-					fmt.Println("REQUIRE KEYWORD")
-					return lexer.advance_with_token(K_REQ, "require")
-				}
+				case "let": return lexer.advance_with_token(K_LET, "let")
+				case "require": return lexer.advance_with_token(K_REQ, "require")
+				default: log.Fatal(fmt.Sprintf("[ERROR %d] Unknown keyword %s", UnknownKeyword, keyword))
 			}
 		}
 		switch lexer.File_content[lexer.index] {
@@ -126,15 +149,16 @@ func (lexer *Lexer) Lex() *Lexer {
 					}
 					lexer.index += 1
 				}
-				continue
 			}
 			case '"': {
-				return lexer
+				str_value, lex := lexer.pickup_str()
+				lexer = lex
+
+				return lexer.advance_with_token(T_STR, str_value)
 			}
 			case '*': {
 				for {
 					lexer.index += 1
-
 					if lexer.File_content[lexer.index] == '*' {
 						break
 					}
