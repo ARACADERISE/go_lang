@@ -48,7 +48,7 @@ func Init_lexer(filename string) *Lexer {
 	file, Err := os.Stat(dir)
 
 	if Err != nil {
-		log.Fatal(fmt.Sprintf("[ERROR %d] -> Error openeing %s", ReadErr. filename))
+		log.Fatal(fmt.Sprintf("[ERROR %d] -> Error openeing %s", ReadErr, filename))
 	}
 
 	info := Lexer{ File_size: int(file.Size()), Current_Token: Default, index: 0 }
@@ -82,6 +82,7 @@ func (lexer *Lexer) Lex() *Lexer {
 	for {
 		if is_alpha(lexer.File_content[lexer.index]) {
 			// Do Something to pickup keyword
+			fmt.Println("HERE")
 		}
 		switch lexer.File_content[lexer.index] {
 			case '"': {
@@ -100,9 +101,11 @@ func (lexer *Lexer) Lex() *Lexer {
 				// Do Something
 			}
 			default: {
-				log.Fatal(fmt.Sprintf("[ERROR %d] -> Invalid Character: %c", InvalidToken, lexer.File_content[lexer.index])
+				log.Fatal(fmt.Sprintf("[ERROR %d] -> Invalid Character: %c", InvalidToken, lexer.File_content[lexer.index]))
+			}
 		}
 		lexer.index += 1
+
 	}
 
 	return lexer
