@@ -23,3 +23,15 @@ fnc init_Info(filename: string) -> Info
 	
 	ret info;
 }
+
+* TypeFast supports Function Wrappers *
+* A function wrapper has the following syntax: #[wrapper_name] *
+
+* For example, the wrapper #[ignore] will ignore the code below it until it reaches } *
+* #[ignore] is for functions only *
+* All ignored functions act as test functions *
+#[ignore]
+fnc print() -> None
+{
+	print "Hey"
+}
