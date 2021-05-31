@@ -8,6 +8,7 @@ import (
 	"fmt"
 )
 
+// Tokens
 const (
 	Default = 1
 	T_LB	= 2
@@ -15,6 +16,14 @@ const (
 	T_SEMI	= 4
 	K_LET	= 5
 	K_PRINT = 6
+)
+
+// Errors
+const (
+	NoDir		= 128
+	ReadErr		= 134
+	NoFile		= 138
+	InvalidToken	= 140
 )
 
 type Lexer struct {
@@ -33,13 +42,13 @@ func Init_lexer(filename string) *Lexer {
 	dir, err := filepath.Abs(filename)
 
 	if err != nil {
-		log.Fatal(fmt.Sprintf("[ERROR] -> Error findind main path to file"))
+		log.Fatal(fmt.Sprintf("[ERROR %d] -> Error find main path to file", NoDir))
 	}
 
 	file, Err := os.Stat(dir)
 
 	if Err != nil {
-		log.Fatal(fmt.Sprintf("[ERROR] -> Error openeing %s", filename))
+		log.Fatal(fmt.Sprintf("[ERROR %d] -> Error openeing %s", ReadErr. filename))
 	}
 
 	info := Lexer{ File_size: int(file.Size()), Current_Token: Default, index: 0 }
@@ -47,7 +56,7 @@ func Init_lexer(filename string) *Lexer {
 	data, E := ioutil.ReadFile(dir)
 
 	if E != nil {
-		log.Fatal(fmt.Sprintf("[ERROR] -> error reading file %s", filename))
+		log.Fatal(fmt.Sprintf("[ERROR %d] -> error reading file %s", ReadErr, filename))
 	}
 
 	info.File_content = data
@@ -91,7 +100,7 @@ func (lexer *Lexer) Lex() *Lexer {
 				// Do Something
 			}
 			default: {
-				log.Fatal(fmt.Sprintf("[ERROR] -> Invalid Character: %c", lexer.File_content[lexer.index])
+				log.Fatal(fmt.Sprintf("[ERROR %d] -> Invalid Character: %c", InvalidToken, lexer.File_content[lexer.index])
 		}
 		lexer.index += 1
 	}
