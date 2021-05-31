@@ -1,11 +1,13 @@
 * TypeFast is a language developed to make language dev easier *
 
-* Eventuall will have *
-block Info -> {
-	content: string,
-	size:	usize,
-	path: PATH
-};
+* To have a "enum" do *
+infoBlock Errors
+{
+	NoFile, 	* 1 by default *
+	InvalidToken	* 2 by default *
+}
+
+* you can also do NoFile = 255 if you want. it's easier to go with default values though *
 
 * To init a lexer block, do *
 block Lexer -> INIT_LEXER;
