@@ -3,5 +3,7 @@
 	"version": "0.1.0",
 	"desc": "Your language description",
 	"file": "/home/mocacdeveloper/go_lang/dude.t",
-	"all_files": null
+	"all_files": [
+		"/home/mocacdeveloper/go_lang/dude.t"
+	]
 }
