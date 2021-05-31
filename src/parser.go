@@ -9,7 +9,7 @@ import (
 
 type Parser struct {
 	lexer		interface{}
-	lang_info	*packager.LangInfo
+	lang_info	interface{}
 }
 
 func Init_parser(lexer interface{}) *Parser {
@@ -29,7 +29,9 @@ func (parser *Parser) parse_require(lexer *Lexer) *Parser {
 
 			info := packager.Read_info_package(lexer.Token_value)
 
-			parser.lang_info = info
+			switch lexer.Token_value {
+				case "lang_info.json": parser.lang_info = info.(*packager.LangInfo)
+			}
 		}
 		default: log.Fatal(fmt.Sprintf("[PARSING ERROR] -> Expected string, got %s", lexer.Token_value))
 	}
