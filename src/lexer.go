@@ -161,6 +161,7 @@ func (lexer *Lexer) Lex() *Lexer {
 				for {
 					lexer.index += 1
 					if lexer.File_content[lexer.index] == '*' {
+						lexer.index += 1
 						break
 					}
 				}
