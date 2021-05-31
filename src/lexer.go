@@ -18,6 +18,7 @@ const (
 	K_LET	= 6
 	K_REQ	= 7
 	K_PRINT = 8
+	T_EOF	= 9
 )
 
 // Errors
@@ -178,6 +179,8 @@ func (lexer *Lexer) Lex() *Lexer {
 		}
 
 	}
+
+	lexer.Current_Token = T_EOF
 
 	return lexer
 }

@@ -46,10 +46,11 @@ func (parser *Parser) Parse() *Parser {
 
 	lexer := parser.lexer.(*Lexer)
 
-	switch lexer.Current_token() {
-		case K_REQ: return parser.parse_require(lexer)
-		default: log.Fatal("Unexpected token")
+	for {
+		switch lexer.Current_token() {
+			case K_REQ: parser.parse_require(lexer)
+			case T_EOF: return parser
+			default: log.Fatal("Unexpected token")
+		}
 	}
-
-	return parser
 }
