@@ -15,10 +15,12 @@ const (
 	T_RB	= 3
 	T_SEMI	= 4
 	T_STR	= 5
-	K_LET	= 6
-	K_REQ	= 7
-	K_PRINT = 8
-	T_EOF	= 9
+	T_DOT	= 6
+	K_VAR_N = 7
+	K_LET	= 8
+	K_REQ	= 9
+	K_PRINT = 10
+	T_EOF	= 11
 )
 
 // Errors
@@ -93,6 +95,13 @@ func (lexer *Lexer) pickup_keyword() (string, *Lexer) {
 			keyword += string(lexer.File_content[lexer.index])
 			break
 		}
+		if lexer.File_content[lexer.index] == '|' {
+			//lexer.index += 1
+			break
+		}
+		if lexer.File_content[lexer.index] == '.' {
+			break
+		}
 		if lexer.File_content[lexer.index] == ' ' {
 			break
 		}
@@ -111,7 +120,6 @@ func (lexer *Lexer) pickup_str() (string, *Lexer) {
 	lexer.index += 1
 	for {
 		if lexer.File_content[lexer.index] == '"' {
-			lexer.index += 1
 			break
 		}
 
@@ -137,10 +145,15 @@ func (lexer *Lexer) Lex() *Lexer {
 			lexer = new_lex
 
 			switch keyword {
+				case "print": return lexer.advance_with_token(K_PRINT, "print")
 				case "let": return lexer.advance_with_token(K_LET, "let")
-				case "require": return lexer.advance_with_token(K_REQ, "require")
-				default: log.Fatal(fmt.Sprintf("[ERROR %d] Unknown keyword %s", UnknownKeyword, keyword))
+				case "require": {
+					return lexer.advance_with_token(K_REQ, "require")
+				}
+				default: return lexer.advance_with_token(K_VAR_N, keyword)
 			}
+
+			return lexer.advance_with_token(K_VAR_N, keyword)
 		}
 		switch lexer.File_content[lexer.index] {
 			case ' ': {
@@ -150,13 +163,27 @@ func (lexer *Lexer) Lex() *Lexer {
 					}
 					lexer.index += 1
 				}
+				continue
+			}
+			case '\n': {
+				for {
+					lexer.index += 1
+					if lexer.File_content[lexer.index] != '\n' {
+						break
+					}
+				}
+				continue
 			}
 			case '"': {
-				str_value, lex := lexer.pickup_str()
-				lexer = lex
+				str_value, _ := lexer.pickup_str()
+				//lexer = lex
+
+				//lexer.index += 1
 
 				return lexer.advance_with_token(T_STR, str_value)
 			}
+			case '.': return lexer.advance_with_token(T_DOT, ".")
+			case ';': return lexer.advance_with_token(T_SEMI, ";")
 			case '*': {
 				for {
 					lexer.index += 1

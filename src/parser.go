@@ -23,36 +23,78 @@ func (parser *Parser) get_next_token(lexer *Lexer) *Lexer {
 func (parser *Parser) parse_require(lexer *Lexer) *Parser {
 	parser.get_next_token(lexer)
 
-	switch lexer.Current_token() {
-		case T_STR: {
+
+	if lexer.Current_Token == T_STR {
+
+		info := packager.Read_info_package(lexer.Token_value)
+
+		switch lexer.Token_value {
+			case "lang_info.json": parser.lang_info = info.(*packager.LangInfo)
+		}
+
+		parser.get_next_token(lexer)
+
+		if lexer.Current_Token == T_SEMI {
 			parser.get_next_token(lexer)
+		}
 
-			info := packager.Read_info_package(lexer.Token_value)
+		parser.lexer = lexer
 
+		return parser
+	}
+
+	log.Fatal("Parsing Error")
+	return parser
+}
+
+// Function prone to change
+func (parser *Parser) parse_print(lexer *Lexer) *Parser {
+	parser.get_next_token(lexer)
+
+	switch lexer.Current_Token {
+		case K_VAR_N: {
 			switch lexer.Token_value {
-				case "lang_info.json": parser.lang_info = info.(*packager.LangInfo)
+				case "inter": {
+					// Strict Syntax(For now)
+					parser.get_next_token(lexer)
+
+					switch lexer.Token_value {
+						case "LangInfo": {
+							parser.get_next_token(lexer)
+
+							//parser.get_next_token(lexer)
+							LI := parser.lang_info.(*packager.LangInfo)
+
+							switch lexer.Token_value {
+								case "lang_name": fmt.Println(LI.LangName)
+								case "lang_version": fmt.Println(LI.LangVersion)
+							}
+						}
+					}
+				}
 			}
 		}
-		default: log.Fatal(fmt.Sprintf("[PARSING ERROR] -> Expected string, got %s", lexer.Token_value))
+		case T_STR: {
+			fmt.Println(lexer.Token_value)
+		}
 	}
 
 	parser.get_next_token(lexer)
 
-	if lexer.Current_token() == T_SEMI {
-		parser.get_next_token(lexer)
-	}
 	return parser
 }
 
 func (parser *Parser) Parse() *Parser {
 
 	lexer := parser.lexer.(*Lexer)
-
 	for {
-		switch lexer.Current_token() {
+		switch lexer.Current_Token {
 			case K_REQ: parser.parse_require(lexer)
+			case K_PRINT: parser.parse_print(lexer)
 			case T_EOF: return parser
-			default: log.Fatal("Unexpected token")
+			default: return parser
 		}
 	}
+
+	return parser
 }
