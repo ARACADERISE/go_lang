@@ -61,3 +61,13 @@ fnc change_type(var varname, new_type vartype) -> None
 {
 	inter.setNew(var, new_type) * .setNew(varname, vartype) *				                         * sets varname to vartype, accordingly *
 }(a, str)
+
+
+* You will normally see functions like this in the beginning: *
+#[allow(inter_access)]
+fnc all() -> None {
+	inter.SetAll(settings, true)
+}()
+* The above function runs .SetAll, which takes in a block of information, and sets all values to the set_value *
+* In the above example, settings is the function wrappers block that contains values, accordingly. In all(), we set all *
+* those values to true..consistently *
