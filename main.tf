@@ -7,3 +7,7 @@ require "lang_info.json"
 print inter.LangInfo.lang_name|
 
 print inter.LangInfo.lang_version|
+
+fnc funcName() -> None {
+	print "Hello, World"
+}

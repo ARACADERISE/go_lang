@@ -26,6 +26,9 @@ const (
 	T_RB	= 14
 	T_LP	= 15
 	T_RP	= 16
+	K_FUNC	= 17
+	T_DA	= 18
+	T_MINUS = 19
 )
 
 // Errors
@@ -110,7 +113,10 @@ func (lexer *Lexer) pickup_keyword() (string, *Lexer) {
 		if lexer.File_content[lexer.index] == ' ' {
 			break
 		}
-		if lexer.File_content[lexer.index] == '(' || lexer.File_content[lexer.index] == ')' {
+		if lexer.File_content[lexer.index] == '(' {
+			break
+		}
+		if lexer.File_content[lexer.index] == ')' {
 			break
 		}
 
@@ -149,18 +155,21 @@ func (lexer *Lexer) Lex() *Lexer {
 		}
 		if is_alpha(lexer.File_content[lexer.index]) {
 			// Do Something to pickup keyword
-			keyword, new_lex := lexer.pickup_keyword()
-			lexer = new_lex
+			keyword, _ := lexer.pickup_keyword()
+			//lexer = new_lex
 
 			switch keyword {
 				case "print": return lexer.advance_with_token(K_PRINT, "print")
 				case "let": return lexer.advance_with_token(K_LET, "let")
-				case "require": {
-					return lexer.advance_with_token(K_REQ, "require")
+				case "require": return lexer.advance_with_token(K_REQ, "require")
+				case "fnc": return lexer.advance_with_token(K_FUNC, "fnc")
+				default: {
+					lexer.index -= 1
+					return lexer.advance_with_token(K_VAR_N, keyword)
 				}
-				default: return lexer.advance_with_token(K_VAR_N, keyword)
 			}
 
+			lexer.index -= 1
 			return lexer.advance_with_token(K_VAR_N, keyword)
 		}
 		switch lexer.File_content[lexer.index] {
@@ -182,6 +191,15 @@ func (lexer *Lexer) Lex() *Lexer {
 				}
 				continue
 			}
+			case '\t': {
+				for {
+					lexer.index += 1
+					if lexer.File_content[lexer.index] != ' ' {
+						break
+					}
+				}
+				continue
+			}
 			case '"': {
 				str_value, _ := lexer.pickup_str()
 				//lexer = lex
@@ -193,6 +211,16 @@ func (lexer *Lexer) Lex() *Lexer {
 			case '.': return lexer.advance_with_token(T_DOT, ".")
 			case ';': return lexer.advance_with_token(T_SEMI, ";")
 			case '#': return lexer.advance_with_token(T_WRAP, "#")
+			case '-': {
+				lexer.index += 1
+
+				if lexer.File_content[lexer.index] == '>' {
+					return lexer.advance_with_token(T_DA, "->")
+				}
+
+				lexer.index -= 1
+				return lexer.advance_with_token(T_MINUS, "-")
+			}
 			case '*': {
 				for {
 					lexer.index += 1
@@ -202,17 +230,18 @@ func (lexer *Lexer) Lex() *Lexer {
 					}
 				}
 			}
-			case '{': return lexer.advance_with_token(T_LSB, "{")
-			case '}': return lexer.advance_with_token(T_RSB, "}")
-			case '[': return lexer.advance_with_token(T_LB, "[")
-			case ']': return lexer.advance_with_token(T_RB, "]")
-			case ')': return lexer.advance_with_token(T_LP, "(")
-			case '(': return lexer.advance_with_token(T_RP, ")")
+			case '{': return lexer.advance_with_token(T_LB, "{")
+			case '}': return lexer.advance_with_token(T_RB, "}")
+			case '[': return lexer.advance_with_token(T_LSB, "[")
+			case ']': return lexer.advance_with_token(T_RSB, "]")
+			case '(': return lexer.advance_with_token(T_LP, "(")
+			case ')': return lexer.advance_with_token(T_RP, ")")
+			case '|': lexer.index += 1
 			default: {
 				log.Fatal(fmt.Sprintf("[ERROR %d] -> Invalid Character: %c", InvalidToken, lexer.File_content[lexer.index]))
 			}
 		}
-		lexer.index += 1
+		//lexer.index += 1
 
 		if lexer.index == len(lexer.File_content) - 1 {
 			break
